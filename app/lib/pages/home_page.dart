@@ -3,15 +3,16 @@ import 'dart:io';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/config/init.dart';
-import 'package:localsend_app/config/theme.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/pages/home_page_controller.dart';
 import 'package:localsend_app/pages/tabs/receive_tab.dart';
 import 'package:localsend_app/pages/tabs/send_tab.dart';
 import 'package:localsend_app/pages/tabs/settings_tab.dart';
 import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
+import 'package:localsend_app/provider/skin_provider.dart';
 import 'package:localsend_app/util/native/cross_file_converters.dart';
-import 'package:localsend_app/widget/responsive_builder.dart';
+import 'package:localsend_app/widget/floating_navigation_bar.dart';
+import 'package:localsend_app/widget/skin_background.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
 enum HomeTab {
@@ -70,116 +71,94 @@ class _HomePageState extends State<HomePage> with Refena {
   Widget build(BuildContext context) {
     Translations.of(context); // rebuild on locale change
     final vm = context.watch(homePageControllerProvider);
+    final wallpaperPath = context.watch(skinProvider.select((state) => state.wallpaperPath));
 
-    return DropTarget(
-      onDragEntered: (_) {
-        setState(() {
-          _dragAndDropIndicator = true;
-        });
-      },
-      onDragExited: (_) {
-        setState(() {
-          _dragAndDropIndicator = false;
-        });
-      },
-      onDragDone: (event) async {
-        // the drop may contain a mix of files and directories
-        final droppedDirectories = event.files.where((file) => Directory(file.path).existsSync()).toList();
-        final droppedFiles = event.files.where((file) => !Directory(file.path).existsSync()).toList();
+    return SkinBackground(
+      wallpaperPath: wallpaperPath,
+      child: DropTarget(
+        onDragEntered: (_) {
+          setState(() {
+            _dragAndDropIndicator = true;
+          });
+        },
+        onDragExited: (_) {
+          setState(() {
+            _dragAndDropIndicator = false;
+          });
+        },
+        onDragDone: (event) async {
+          // the drop may contain a mix of files and directories
+          final droppedDirectories = event.files.where((file) => Directory(file.path).existsSync()).toList();
+          final droppedFiles = event.files.where((file) => !Directory(file.path).existsSync()).toList();
 
-        for (final directory in droppedDirectories) {
-          await ref.redux(selectedSendingFilesProvider).dispatchAsync(AddDirectoryAction(directory.path));
-        }
+          for (final directory in droppedDirectories) {
+            await ref.redux(selectedSendingFilesProvider).dispatchAsync(AddDirectoryAction(directory.path));
+          }
 
-        if (droppedFiles.isNotEmpty) {
-          await ref
-              .redux(selectedSendingFilesProvider)
-              .dispatchAsync(
-                AddFilesAction(
-                  files: droppedFiles,
-                  converter: CrossFileConverters.convertXFile,
-                ),
-              );
-        }
-        vm.changeTab(HomeTab.send);
-      },
-      child: ResponsiveBuilder(
-        builder: (sizingInformation) {
-          return Scaffold(
-            body: Row(
-              children: [
-                if (!sizingInformation.isMobile)
-                  NavigationRail(
-                    selectedIndex: vm.currentTab.index,
-                    onDestinationSelected: (index) => vm.changeTab(HomeTab.values[index]),
-                    extended: sizingInformation.isDesktop,
-                    backgroundColor: Theme.of(context).cardColorWithElevation,
-                    leading: sizingInformation.isDesktop
-                        ? const Column(
-                            children: [
-                              SizedBox(height: 20),
-                              Text(
-                                'LocalSend',
-                                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.center,
-                              ),
-                              SizedBox(height: 20),
-                            ],
-                          )
-                        : null,
-                    destinations: HomeTab.values.map((tab) {
-                      return NavigationRailDestination(
-                        icon: Icon(tab.icon),
-                        label: Text(tab.label),
-                      );
-                    }).toList(),
+          if (droppedFiles.isNotEmpty) {
+            await ref
+                .redux(selectedSendingFilesProvider)
+                .dispatchAsync(
+                  AddFilesAction(
+                    files: droppedFiles,
+                    converter: CrossFileConverters.convertXFile,
                   ),
-                Expanded(
-                  child: SafeArea(
-                    left: sizingInformation.isMobile,
-                    child: Stack(
-                      children: [
-                        PageView(
-                          controller: vm.controller,
-                          physics: const NeverScrollableScrollPhysics(),
-                          children: const [
-                            ReceiveTab(),
-                            SendTab(),
-                            SettingsTab(),
-                          ],
-                        ),
-                        if (_dragAndDropIndicator)
-                          Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).scaffoldBackgroundColor,
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.file_download, size: 128),
-                                const SizedBox(height: 30),
-                                Text(t.sendTab.placeItems, style: Theme.of(context).textTheme.titleLarge),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
+                );
+          }
+          vm.changeTab(HomeTab.send);
+        },
+        child: Scaffold(
+          backgroundColor: wallpaperPath == null ? null : Colors.transparent,
+          body: Stack(
+            children: [
+              Positioned.fill(
+                child: SafeArea(
+                  bottom: false,
+                  child: PageView(
+                    controller: vm.controller,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 94),
+                        child: ReceiveTab(),
+                      ),
+                      SendTab(),
+                      SettingsTab(),
+                    ],
                   ),
                 ),
-              ],
-            ),
-            bottomNavigationBar: sizingInformation.isMobile
-                ? NavigationBar(
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: SafeArea(
+                  top: false,
+                  minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  child: FloatingNavigationBar(
                     selectedIndex: vm.currentTab.index,
                     onDestinationSelected: (index) => vm.changeTab(HomeTab.values[index]),
                     destinations: HomeTab.values.map((tab) {
                       return NavigationDestination(icon: Icon(tab.icon), label: tab.label);
                     }).toList(),
-                  )
-                : null,
-          );
-        },
+                  ),
+                ),
+              ),
+              if (_dragAndDropIndicator)
+                Positioned.fill(
+                  child: ColoredBox(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.file_download, size: 128),
+                        const SizedBox(height: 30),
+                        Text(t.sendTab.placeItems, style: Theme.of(context).textTheme.titleLarge),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

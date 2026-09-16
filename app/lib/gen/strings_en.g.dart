@@ -271,6 +271,7 @@ class Translations$settingsTab$en {
   /// en: 'Settings'
   String get title => 'Settings';
 
+  late final Translations$settingsTab$appearance$en appearance = Translations$settingsTab$appearance$en.internal(_root);
   late final Translations$settingsTab$general$en general = Translations$settingsTab$general$en.internal(_root);
   late final Translations$settingsTab$receive$en receive = Translations$settingsTab$receive$en.internal(_root);
   late final Translations$settingsTab$send$en send = Translations$settingsTab$send$en.internal(_root);
@@ -1044,6 +1045,66 @@ class Translations$sendTab$sendModes$en {
 
   /// en: 'Share via link'
   String get link => 'Share via link';
+}
+
+// Path: settingsTab.appearance
+class Translations$settingsTab$appearance$en {
+  Translations$settingsTab$appearance$en.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Appearance'
+  String get title => 'Appearance';
+
+  /// en: 'Wallpaper'
+  String get wallpaper => 'Wallpaper';
+
+  /// en: 'Choose'
+  String get wallpaperChoose => 'Choose';
+
+  /// en: 'Change'
+  String get wallpaperChange => 'Change';
+
+  /// en: 'Remove wallpaper'
+  String get wallpaperRemove => 'Remove wallpaper';
+
+  /// en: 'The selected image could not be used as wallpaper.'
+  String get wallpaperError => 'The selected image could not be used as wallpaper.';
+
+  /// en: 'Home icon'
+  String get homeLogo => 'Home icon';
+
+  /// en: 'Choose'
+  String get homeLogoChoose => 'Choose';
+
+  /// en: 'Change'
+  String get homeLogoChange => 'Change';
+
+  /// en: 'Restore default icon'
+  String get homeLogoRemove => 'Restore default icon';
+
+  /// en: 'The selected image could not be used as the home icon.'
+  String get homeLogoError => 'The selected image could not be used as the home icon.';
+
+  /// en: 'Adjust home icon'
+  String get homeLogoCropTitle => 'Adjust home icon';
+
+  /// en: 'Drag the preview or use the controls to choose the visible area.'
+  String get homeLogoCropHint => 'Drag the preview or use the controls to choose the visible area.';
+
+  /// en: 'Zoom'
+  String get homeLogoCropZoom => 'Zoom';
+
+  /// en: 'Horizontal'
+  String get homeLogoCropHorizontal => 'Horizontal';
+
+  /// en: 'Vertical'
+  String get homeLogoCropVertical => 'Vertical';
+
+  /// en: 'Reset'
+  String get homeLogoCropReset => 'Reset';
 }
 
 // Path: settingsTab.general

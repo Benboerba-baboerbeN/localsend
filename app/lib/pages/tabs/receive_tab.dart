@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/state/server/server_state.dart';
@@ -9,6 +11,7 @@ import 'package:localsend_app/provider/animation_provider.dart';
 import 'package:localsend_app/provider/local_ip_provider.dart';
 import 'package:localsend_app/provider/network/server/server_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
+import 'package:localsend_app/provider/skin_provider.dart';
 import 'package:localsend_app/util/ip_helper.dart';
 import 'package:localsend_app/widget/animations/initial_fade_transition.dart';
 import 'package:localsend_app/widget/column_list_view.dart';
@@ -78,10 +81,15 @@ class _ReceiveTabState extends State<ReceiveTab> {
                             builder: (context, ref) {
                               final animations = ref.watch(animationProvider);
                               final activeTab = ref.watch(homePageControllerProvider.select((state) => state.currentTab));
+                              final homeLogoPath = ref.watch(skinProvider.select((state) => state.homeLogoPath));
+                              final logo = _HomeLogo(path: homeLogoPath);
+                              if (homeLogoPath != null) {
+                                return logo;
+                              }
                               return RotatingWidget(
                                 duration: const Duration(seconds: 15),
                                 spinning: serverState != null && animations && activeTab == HomeTab.receive,
-                                child: const LocalSendLogo(withText: false),
+                                child: logo,
                               );
                             },
                           ),
@@ -131,6 +139,44 @@ class _ReceiveTabState extends State<ReceiveTab> {
           toggleAdvanced: _toggleAdvanced,
         ),
       ],
+    );
+  }
+}
+
+class _HomeLogo extends StatelessWidget {
+  final String? path;
+
+  const _HomeLogo({required this.path});
+
+  @override
+  Widget build(BuildContext context) {
+    final imagePath = path;
+    if (imagePath == null) {
+      return const LocalSendLogo(withText: false);
+    }
+
+    return RepaintBoundary(
+      child: Container(
+        width: 200,
+        height: 200,
+        padding: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8), width: 2),
+        ),
+        child: ClipOval(
+          child: Image.file(
+            File(imagePath),
+            key: ValueKey(imagePath),
+            fit: BoxFit.cover,
+            cacheWidth: 512,
+            filterQuality: FilterQuality.medium,
+            gaplessPlayback: true,
+            excludeFromSemantics: true,
+            errorBuilder: (_, _, _) => const LocalSendLogo(withText: false),
+          ),
+        ),
+      ),
     );
   }
 }

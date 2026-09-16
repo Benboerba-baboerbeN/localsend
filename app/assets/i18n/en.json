@@ -86,6 +86,25 @@
   },
   "settingsTab": {
     "title": "Settings",
+    "appearance": {
+      "title": "Appearance",
+      "wallpaper": "Wallpaper",
+      "wallpaperChoose": "Choose",
+      "wallpaperChange": "Change",
+      "wallpaperRemove": "Remove wallpaper",
+      "wallpaperError": "The selected image could not be used as wallpaper.",
+      "homeLogo": "Home icon",
+      "homeLogoChoose": "Choose",
+      "homeLogoChange": "Change",
+      "homeLogoRemove": "Restore default icon",
+      "homeLogoError": "The selected image could not be used as the home icon.",
+      "homeLogoCropTitle": "Adjust home icon",
+      "homeLogoCropHint": "Drag the preview or use the controls to choose the visible area.",
+      "homeLogoCropZoom": "Zoom",
+      "homeLogoCropHorizontal": "Horizontal",
+      "homeLogoCropVertical": "Vertical",
+      "homeLogoCropReset": "Reset"
+    },
     "general": {
       "title": "General",
       "brightness": "Theme",

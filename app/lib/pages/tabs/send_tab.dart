@@ -265,7 +265,7 @@ class SendTab extends StatelessWidget {
                 },
               ),
             ),
-            const SizedBox(height: 50),
+            const SizedBox(height: 120),
           ],
         );
       },

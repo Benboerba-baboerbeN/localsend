@@ -244,6 +244,8 @@ class Translations$settingsTab$zh_CN extends Translations$settingsTab$en {
   @override
   String get title => '设置';
   @override
+  late final Translations$settingsTab$appearance$zh_CN appearance = Translations$settingsTab$appearance$zh_CN.internal(_root);
+  @override
   late final Translations$settingsTab$general$zh_CN general = Translations$settingsTab$general$zh_CN.internal(_root);
   @override
   late final Translations$settingsTab$receive$zh_CN receive = Translations$settingsTab$receive$zh_CN.internal(_root);
@@ -919,6 +921,49 @@ class Translations$sendTab$sendModes$zh_CN extends Translations$sendTab$sendMode
   String get multiple => '多个接收者';
   @override
   String get link => '通过链接分享';
+}
+
+// Path: settingsTab.appearance
+class Translations$settingsTab$appearance$zh_CN extends Translations$settingsTab$appearance$en {
+  Translations$settingsTab$appearance$zh_CN.internal(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+  final TranslationsZhCn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get title => '外观与换肤';
+  @override
+  String get wallpaper => '壁纸';
+  @override
+  String get wallpaperChoose => '选择';
+  @override
+  String get wallpaperChange => '更换';
+  @override
+  String get wallpaperRemove => '移除壁纸';
+  @override
+  String get wallpaperError => '无法将所选图片设为壁纸。';
+  @override
+  String get homeLogo => '首页图标';
+  @override
+  String get homeLogoChoose => '选择';
+  @override
+  String get homeLogoChange => '更换';
+  @override
+  String get homeLogoRemove => '恢复默认图标';
+  @override
+  String get homeLogoError => '无法将所选图片设为首页图标。';
+  @override
+  String get homeLogoCropTitle => '调整首页图标';
+  @override
+  String get homeLogoCropHint => '拖动预览图或使用控制条选择要显示的区域。';
+  @override
+  String get homeLogoCropZoom => '缩放';
+  @override
+  String get homeLogoCropHorizontal => '水平';
+  @override
+  String get homeLogoCropVertical => '垂直';
+  @override
+  String get homeLogoCropReset => '重置';
 }
 
 // Path: settingsTab.general

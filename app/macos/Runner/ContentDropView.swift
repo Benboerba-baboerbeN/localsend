@@ -1,6 +1,9 @@
+import Cocoa
 import Defaults
 
 class ContentDropView: NSView {
+    var onMouseUp: ((NSEvent) -> Void)?
+
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         setup()
@@ -13,6 +16,14 @@ class ContentDropView: NSView {
     
     private func setup() {
         registerForDraggedTypes([.fileURL, .URL, .string])
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        onMouseUp?(event)
+    }
+
+    override func rightMouseUp(with event: NSEvent) {
+        onMouseUp?(event)
     }
     
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {

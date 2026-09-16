@@ -71,6 +71,8 @@ const _aliasKey = 'ls_alias';
 const _themeKey = 'ls_theme'; // now called brightness
 const _colorKey = 'ls_color';
 const _customColorKey = 'ls_custom_color'; // RRGGBB hex, used by ColorMode.custom
+const _wallpaperPathKey = 'ls_wallpaper_path';
+const _homeLogoPathKey = 'ls_home_logo_path';
 const _localeKey = 'ls_locale';
 const _portKey = 'ls_port';
 const _networkWhitelistKey = 'ls_network_whitelist';
@@ -319,6 +321,30 @@ class PersistenceService {
 
   Future<void> setCustomColor(Color color) async {
     await _prefs.setString(_customColorKey, color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2));
+  }
+
+  String? getWallpaperPath() {
+    return _prefs.getString(_wallpaperPathKey);
+  }
+
+  Future<void> setWallpaperPath(String? path) async {
+    if (path == null) {
+      await _prefs.remove(_wallpaperPathKey);
+    } else {
+      await _prefs.setString(_wallpaperPathKey, path);
+    }
+  }
+
+  String? getHomeLogoPath() {
+    return _prefs.getString(_homeLogoPathKey);
+  }
+
+  Future<void> setHomeLogoPath(String? path) async {
+    if (path == null) {
+      await _prefs.remove(_homeLogoPathKey);
+    } else {
+      await _prefs.setString(_homeLogoPathKey, path);
+    }
   }
 
   AppLocale? getLocale() {

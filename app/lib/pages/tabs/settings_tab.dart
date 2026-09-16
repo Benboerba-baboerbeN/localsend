@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/config/theme.dart';
@@ -12,6 +13,7 @@ import 'package:localsend_app/pages/settings/network_interfaces_page.dart';
 import 'package:localsend_app/pages/tabs/settings_tab_controller.dart';
 import 'package:localsend_app/provider/network/server/server_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
+import 'package:localsend_app/provider/skin_provider.dart';
 import 'package:localsend_app/provider/version_provider.dart';
 import 'package:localsend_app/util/alias_generator.dart';
 import 'package:localsend_app/util/device_type_ext.dart';
@@ -19,8 +21,10 @@ import 'package:localsend_app/util/i18n.dart';
 import 'package:localsend_app/util/native/macos_channel.dart';
 import 'package:localsend_app/util/native/pick_directory_path.dart';
 import 'package:localsend_app/util/native/platform_check.dart';
+import 'package:localsend_app/util/ui/snackbar.dart';
 import 'package:localsend_app/widget/custom_dropdown_button.dart';
 import 'package:localsend_app/widget/dialogs/encryption_disabled_notice.dart';
+import 'package:localsend_app/widget/dialogs/home_logo_crop_dialog.dart';
 import 'package:localsend_app/widget/dialogs/pin_dialog.dart';
 import 'package:localsend_app/widget/dialogs/quick_save_from_favorites_notice.dart';
 import 'package:localsend_app/widget/dialogs/quick_save_notice.dart';
@@ -44,8 +48,9 @@ class SettingsTab extends StatelessWidget {
       provider: (ref) => settingsTabControllerProvider,
       builder: (context, vm) {
         final ref = context.ref;
+        final skin = ref.watch(skinProvider);
         return ResponsiveListView(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 40),
+          padding: const EdgeInsets.fromLTRB(15, 40, 15, 120),
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 8),
@@ -53,7 +58,7 @@ class SettingsTab extends StatelessWidget {
             ),
             const SizedBox(height: 30),
             _SettingsSection(
-              title: t.settingsTab.general.title,
+              title: t.settingsTab.appearance.title,
               children: [
                 _SettingsEntry(
                   label: t.settingsTab.general.brightness,
@@ -83,6 +88,81 @@ class SettingsTab extends StatelessWidget {
                     onChanged: (colorMode) => vm.onChangeColorMode(context, colorMode),
                   ),
                 ),
+                if (checkPlatformIsDesktop())
+                  _ImageEntry(
+                    label: t.settingsTab.appearance.wallpaper,
+                    hasImage: skin.wallpaperPath != null,
+                    chooseLabel: t.settingsTab.appearance.wallpaperChoose,
+                    changeLabel: t.settingsTab.appearance.wallpaperChange,
+                    removeTooltip: t.settingsTab.appearance.wallpaperRemove,
+                    icon: Icons.wallpaper,
+                    onChoose: () async {
+                      final result = await FilePicker.pickFiles(
+                        type: FileType.custom,
+                        allowedExtensions: const ['jpg', 'jpeg', 'png', 'webp'],
+                        allowMultiple: false,
+                      );
+                      final path = result?.files.single.path;
+                      if (path == null) {
+                        return;
+                      }
+                      if (!context.mounted) {
+                        return;
+                      }
+                      try {
+                        await ref.notifier(skinProvider).setWallpaper(path);
+                      } catch (_) {
+                        if (context.mounted) {
+                          context.showSnackBar(t.settingsTab.appearance.wallpaperError);
+                        }
+                      }
+                    },
+                    onClear: () async {
+                      await ref.notifier(skinProvider).clearWallpaper();
+                    },
+                  ),
+                if (checkPlatformIsDesktop())
+                  _ImageEntry(
+                    label: t.settingsTab.appearance.homeLogo,
+                    hasImage: skin.homeLogoPath != null,
+                    chooseLabel: t.settingsTab.appearance.homeLogoChoose,
+                    changeLabel: t.settingsTab.appearance.homeLogoChange,
+                    removeTooltip: t.settingsTab.appearance.homeLogoRemove,
+                    icon: Icons.image_outlined,
+                    onChoose: () async {
+                      final result = await FilePicker.pickFiles(
+                        type: FileType.custom,
+                        allowedExtensions: const ['jpg', 'jpeg', 'png', 'webp'],
+                        allowMultiple: false,
+                      );
+                      final path = result?.files.single.path;
+                      if (path == null) {
+                        return;
+                      }
+                      if (!context.mounted) {
+                        return;
+                      }
+                      try {
+                        final crop = await HomeLogoCropDialog.open(context, path);
+                        if (crop == null) {
+                          return;
+                        }
+                        await ref.notifier(skinProvider).setHomeLogo(path, crop: crop);
+                      } catch (_) {
+                        if (context.mounted) {
+                          context.showSnackBar(t.settingsTab.appearance.homeLogoError);
+                        }
+                      }
+                    },
+                    onClear: () async {
+                      await ref.notifier(skinProvider).clearHomeLogo();
+                    },
+                  ),
+              ],
+            ),
+            _SettingsSection(
+              title: t.settingsTab.general.title,
+              children: [
                 _ButtonEntry(
                   label: t.settingsTab.general.language,
                   buttonLabel: vm.settings.locale?.getLocaleName() ?? t.settingsTab.general.languageOptions.system,
@@ -629,6 +709,57 @@ class _SettingsEntry extends StatelessWidget {
             width: 150,
             child: child,
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ImageEntry extends StatelessWidget {
+  final String label;
+  final bool hasImage;
+  final String chooseLabel;
+  final String changeLabel;
+  final String removeTooltip;
+  final IconData icon;
+  final VoidCallback onChoose;
+  final VoidCallback onClear;
+
+  const _ImageEntry({
+    required this.label,
+    required this.hasImage,
+    required this.chooseLabel,
+    required this.changeLabel,
+    required this.removeTooltip,
+    required this.icon,
+    required this.onChoose,
+    required this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _SettingsEntry(
+      label: label,
+      child: Row(
+        children: [
+          Expanded(
+            child: TextButton.icon(
+              style: TextButton.styleFrom(
+                backgroundColor: Theme.of(context).inputDecorationTheme.fillColor,
+                shape: RoundedRectangleBorder(borderRadius: Theme.of(context).inputDecorationTheme.borderRadius),
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
+              ),
+              onPressed: onChoose,
+              icon: Icon(icon, size: 18),
+              label: Text(hasImage ? changeLabel : chooseLabel),
+            ),
+          ),
+          if (hasImage)
+            IconButton(
+              tooltip: removeTooltip,
+              onPressed: onClear,
+              icon: const Icon(Icons.close),
+            ),
         ],
       ),
     );

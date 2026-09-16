@@ -13,6 +13,7 @@ enum DockIcon: CaseIterable {
 @main
 class AppDelegate: FlutterAppDelegate {
     private var statusItem: NSStatusItem?
+    private var statusMenu: NSMenu?
     private var channel: FlutterMethodChannel?
     private var pendingFilesObservation: Defaults.Observation?
     private var pendingStringsObservation: Defaults.Observation?
@@ -88,9 +89,15 @@ class AppDelegate: FlutterAppDelegate {
             let quitItem = NSMenuItem(title: quitString, action: #selector(quitApp), keyEquivalent: "q")
             menu.addItem(quitItem)
             
-            statusItem?.menu = menu
+            statusMenu = menu
+            button.target = self
+            button.action = #selector(statusBarButtonClicked)
+            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
             
             let dragView = ContentDropView(frame: button.bounds)
+            dragView.onMouseUp = { [weak self] event in
+                self?.handleStatusBarButtonClick(event: event)
+            }
             button.addSubview(dragView)
             
             dragView.translatesAutoresizingMaskIntoConstraints = false
@@ -101,6 +108,20 @@ class AppDelegate: FlutterAppDelegate {
                 dragView.bottomAnchor.constraint(equalTo: button.bottomAnchor)
             ])
         }
+    }
+
+    @objc private func statusBarButtonClicked() {
+        handleStatusBarButtonClick(event: NSApp.currentEvent)
+    }
+
+    private func handleStatusBarButtonClick(event: NSEvent?) {
+        guard let event, event.type == .rightMouseUp else {
+            showLocalSendFromMenuBar()
+            return
+        }
+
+        guard let button = statusItem?.button, let menu = statusMenu else { return }
+        menu.popUp(positioning: nil, at: NSPoint(x: button.bounds.midX, y: button.bounds.minY), in: button)
     }
     
     @objc func showLocalSendFromMenuBar() {

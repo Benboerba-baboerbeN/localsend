@@ -86,6 +86,25 @@
   },
   "settingsTab": {
     "title": "设置",
+    "appearance": {
+      "title": "外观与换肤",
+      "wallpaper": "壁纸",
+      "wallpaperChoose": "选择",
+      "wallpaperChange": "更换",
+      "wallpaperRemove": "移除壁纸",
+      "wallpaperError": "无法将所选图片设为壁纸。",
+      "homeLogo": "首页图标",
+      "homeLogoChoose": "选择",
+      "homeLogoChange": "更换",
+      "homeLogoRemove": "恢复默认图标",
+      "homeLogoError": "无法将所选图片设为首页图标。",
+      "homeLogoCropTitle": "调整首页图标",
+      "homeLogoCropHint": "拖动预览图或使用控制条选择要显示的区域。",
+      "homeLogoCropZoom": "缩放",
+      "homeLogoCropHorizontal": "水平",
+      "homeLogoCropVertical": "垂直",
+      "homeLogoCropReset": "重置"
+    },
     "general": {
       "title": "通用",
       "brightness": "主题",
