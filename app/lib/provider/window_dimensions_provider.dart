@@ -18,8 +18,8 @@ final windowDimensionProvider = Provider<WindowDimensionsController>((ref) {
   return WindowDimensionsController(ref.read(persistenceProvider));
 });
 
-const Size _minimalSize = Size(400, 500);
-const Size _defaultSize = Size(900, 600);
+const Size _minimalSize = Size(400, 600);
+const Size _defaultSize = Size(900, 720);
 
 class WindowDimensionsController {
   final PersistenceService _service;
@@ -35,8 +35,16 @@ class WindowDimensionsController {
     final persistedDimensions = _service.getWindowLastDimensions();
 
     if (useSavedPlacement && persistedDimensions != null && await isInScreenBounds(persistedDimensions.position, persistedDimensions.size)) {
-      await WindowManager.instance.setSize(persistedDimensions.size);
-      await WindowManager.instance.setPosition(persistedDimensions.position);
+      final persistedSize = Size(
+        persistedDimensions.size.width,
+        persistedDimensions.size.height < _defaultSize.height ? _defaultSize.height : persistedDimensions.size.height,
+      );
+      await WindowManager.instance.setSize(persistedSize);
+      if (await isInScreenBounds(persistedDimensions.position, persistedSize)) {
+        await WindowManager.instance.setPosition(persistedDimensions.position);
+      } else {
+        await WindowManager.instance.center();
+      }
     } else {
       final primaryDisplay = await ScreenRetriever.instance.getPrimaryDisplay();
       final hasEnoughWidthForDefaultSize = primaryDisplay.digestedSize.width >= 1200;

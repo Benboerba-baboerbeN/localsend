@@ -84,6 +84,19 @@
     "help": "Please ensure that the desired target is also on the same Wi-Fi network.",
     "placeItems": "Place items to share."
   },
+  "lastTransfer": {
+    "sent": "Last sent",
+    "received": "Last received",
+    "types": {
+      "image": "Image",
+      "video": "Video",
+      "pdf": "PDF",
+      "text": "Text",
+      "apk": "App",
+      "other": "File",
+      "multiple": "Multiple types"
+    }
+  },
   "settingsTab": {
     "title": "Settings",
     "appearance": {

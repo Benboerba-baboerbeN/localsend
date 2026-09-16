@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:localsend_app/gen/strings.g.dart';
 import 'package:localsend_app/model/persistence/color_mode.dart';
 import 'package:localsend_app/model/persistence/favorite_device.dart';
+import 'package:localsend_app/model/persistence/last_transfer.dart';
 import 'package:localsend_app/model/persistence/quick_save_mode.dart';
 import 'package:localsend_app/model/persistence/receive_history_entry.dart';
 import 'package:localsend_app/model/send_mode.dart';
@@ -54,6 +55,7 @@ const _stunServers = 'ls_stun_servers';
 
 // Received file history
 const _receiveHistory = 'ls_receive_history';
+const _lastTransfer = 'ls_last_transfer';
 
 // Favorites
 const _favorites = 'ls_favorites';
@@ -257,6 +259,23 @@ class PersistenceService {
   List<ReceiveHistoryEntry> getReceiveHistory() {
     final historyRaw = _prefs.getStringList(_receiveHistory) ?? [];
     return historyRaw.map((entry) => ReceiveHistoryEntry.fromJson(jsonDecode(entry))).toList();
+  }
+
+  LastTransferRecord? getLastTransfer() {
+    final raw = _prefs.getString(_lastTransfer);
+    if (raw == null) {
+      return null;
+    }
+    try {
+      return LastTransferRecord.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    } catch (e) {
+      _logger.warning('Could not read the last transfer record', e);
+      return null;
+    }
+  }
+
+  Future<void> setLastTransfer(LastTransferRecord record) async {
+    await _prefs.setString(_lastTransfer, jsonEncode(record.toJson()));
   }
 
   Future<void> setReceiveHistory(List<ReceiveHistoryEntry> entries) async {

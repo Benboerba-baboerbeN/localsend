@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:localsend_app/model/cross_file.dart';
+import 'package:localsend_app/model/persistence/last_transfer.dart';
 import 'package:localsend_app/model/send_mode.dart';
 import 'package:localsend_app/model/state/send/send_session_state.dart';
 import 'package:localsend_app/model/state/send/sending_file.dart';
@@ -12,6 +13,7 @@ import 'package:localsend_app/pages/send_page.dart';
 import 'package:localsend_app/provider/device_info_provider.dart';
 import 'package:localsend_app/provider/file_transfer_provider.dart';
 import 'package:localsend_app/provider/http_provider.dart';
+import 'package:localsend_app/provider/last_transfer_provider.dart';
 import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
 import 'package:localsend_app/provider/settings_provider.dart';
 import 'package:localsend_app/widget/dialogs/pin_dialog.dart';
@@ -386,6 +388,15 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
         ),
       );
 
+      unawaited(
+        ref
+            .notifier(lastTransferProvider)
+            .record(
+              direction: LastTransferDirection.sent,
+              fileTypes: requestState.files.values.map((file) => file.file.fileType),
+            ),
+      );
+
       if (state[sessionId]?.background == false) {
         // Pop back to the existing HomePage instead of pushing a new one:
         // a second HomePage attaches a second PageView to the shared PageController,
@@ -515,6 +526,19 @@ class SendNotifier extends Notifier<Map<String, SendSessionState>> {
       _logger.info('Transfer was canceled.');
     } else {
       final hasError = ref.read(fileTransferProvider).getStatuses(sessionId).any((status) => status == FileStatus.failed);
+      if (!hasError) {
+        final transferState = ref.read(fileTransferProvider);
+        unawaited(
+          ref
+              .notifier(lastTransferProvider)
+              .record(
+                direction: LastTransferDirection.sent,
+                fileTypes: sessionState.files.values
+                    .where((file) => transferState.getStatus(sessionId: sessionId, fileId: file.file.id) == FileStatus.finished)
+                    .map((file) => file.file.fileType),
+              ),
+        );
+      }
       if (!hasError && sessionState.background == true) {
         // close session because everything is fine and it is in background
         closeSession(sessionId);

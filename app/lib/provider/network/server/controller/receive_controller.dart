@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:localsend_app/model/persistence/last_transfer.dart';
 import 'package:localsend_app/model/state/server/receive_session_state.dart';
 import 'package:localsend_app/model/state/server/receiving_file.dart';
 import 'package:localsend_app/pages/home_page.dart';
@@ -13,6 +14,7 @@ import 'package:localsend_app/provider/device_info_provider.dart';
 import 'package:localsend_app/provider/favorites_provider.dart';
 import 'package:localsend_app/provider/file_transfer_provider.dart';
 import 'package:localsend_app/provider/http_provider.dart';
+import 'package:localsend_app/provider/last_transfer_provider.dart';
 import 'package:localsend_app/provider/logging/discovery_logs_provider.dart';
 import 'package:localsend_app/provider/network/send_provider.dart';
 import 'package:localsend_app/provider/network/server/server_provider.dart';
@@ -195,6 +197,14 @@ class ReceiveController {
           if (message != null) {
             // accept nothing
             await ref.notifier(serverProvider).acceptFileRequest({});
+            unawaited(
+              ref
+                  .notifier(lastTransferProvider)
+                  .record(
+                    direction: LastTransferDirection.received,
+                    fileTypes: const [FileType.text],
+                  ),
+            );
             return;
           }
 
@@ -409,6 +419,16 @@ class ReceiveController {
           ),
         ),
       );
+      if (!hasError) {
+        unawaited(
+          server.ref
+              .notifier(lastTransferProvider)
+              .record(
+                direction: LastTransferDirection.received,
+                fileTypes: session.files.values.where((file) => file.desiredName != null).map((file) => file.file.fileType),
+              ),
+        );
+      }
       final settings = server.ref.read(settingsProvider);
       // Only auto-close fully successful sessions: a failed file may still be
       // retried by the sender (e.g. after a checksum mismatch), which requires

@@ -48,6 +48,8 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
   @override
   late final Translations$sendTab$zh_CN sendTab = Translations$sendTab$zh_CN.internal(_root);
   @override
+  late final Translations$lastTransfer$zh_CN lastTransfer = Translations$lastTransfer$zh_CN.internal(_root);
+  @override
   late final Translations$settingsTab$zh_CN settingsTab = Translations$settingsTab$zh_CN.internal(_root);
   @override
   late final Translations$troubleshootPage$zh_CN troubleshootPage = Translations$troubleshootPage$zh_CN.internal(_root);
@@ -232,6 +234,21 @@ class Translations$sendTab$zh_CN extends Translations$sendTab$en {
   String get help => '请确保目标连接到同一个 Wi‑Fi 网络。';
   @override
   String get placeItems => '列出要分享的项目。';
+}
+
+// Path: lastTransfer
+class Translations$lastTransfer$zh_CN extends Translations$lastTransfer$en {
+  Translations$lastTransfer$zh_CN.internal(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+  final TranslationsZhCn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get sent => '上次发送';
+  @override
+  String get received => '上次接收';
+  @override
+  late final Translations$lastTransfer$types$zh_CN types = Translations$lastTransfer$types$zh_CN.internal(_root);
 }
 
 // Path: settingsTab
@@ -921,6 +938,29 @@ class Translations$sendTab$sendModes$zh_CN extends Translations$sendTab$sendMode
   String get multiple => '多个接收者';
   @override
   String get link => '通过链接分享';
+}
+
+// Path: lastTransfer.types
+class Translations$lastTransfer$types$zh_CN extends Translations$lastTransfer$types$en {
+  Translations$lastTransfer$types$zh_CN.internal(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+  final TranslationsZhCn _root; // ignore: unused_field
+
+  // Translations
+  @override
+  String get image => '图片';
+  @override
+  String get video => '视频';
+  @override
+  String get pdf => 'PDF';
+  @override
+  String get text => '文本';
+  @override
+  String get apk => '应用';
+  @override
+  String get other => '文件';
+  @override
+  String get multiple => '多个类型';
 }
 
 // Path: settingsTab.appearance

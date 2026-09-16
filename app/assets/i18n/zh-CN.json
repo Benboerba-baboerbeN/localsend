@@ -84,6 +84,19 @@
     "help": "请确保目标连接到同一个 Wi‑Fi 网络。",
     "placeItems": "列出要分享的项目。"
   },
+  "lastTransfer": {
+    "sent": "上次发送",
+    "received": "上次接收",
+    "types": {
+      "image": "图片",
+      "video": "视频",
+      "pdf": "PDF",
+      "text": "文本",
+      "apk": "应用",
+      "other": "文件",
+      "multiple": "多个类型"
+    }
+  },
   "settingsTab": {
     "title": "设置",
     "appearance": {

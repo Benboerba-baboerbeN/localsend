@@ -49,6 +49,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
   late final Translations$general$en general = Translations$general$en.internal(_root);
   late final Translations$receiveTab$en receiveTab = Translations$receiveTab$en.internal(_root);
   late final Translations$sendTab$en sendTab = Translations$sendTab$en.internal(_root);
+  late final Translations$lastTransfer$en lastTransfer = Translations$lastTransfer$en.internal(_root);
   late final Translations$settingsTab$en settingsTab = Translations$settingsTab$en.internal(_root);
   late final Translations$troubleshootPage$en troubleshootPage = Translations$troubleshootPage$en.internal(_root);
   late final Translations$networkInterfacesPage$en networkInterfacesPage = Translations$networkInterfacesPage$en.internal(_root);
@@ -258,6 +259,23 @@ class Translations$sendTab$en {
 
   /// en: 'Place items to share.'
   String get placeItems => 'Place items to share.';
+}
+
+// Path: lastTransfer
+class Translations$lastTransfer$en {
+  Translations$lastTransfer$en.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Last sent'
+  String get sent => 'Last sent';
+
+  /// en: 'Last received'
+  String get received => 'Last received';
+
+  late final Translations$lastTransfer$types$en types = Translations$lastTransfer$types$en.internal(_root);
 }
 
 // Path: settingsTab
@@ -1045,6 +1063,36 @@ class Translations$sendTab$sendModes$en {
 
   /// en: 'Share via link'
   String get link => 'Share via link';
+}
+
+// Path: lastTransfer.types
+class Translations$lastTransfer$types$en {
+  Translations$lastTransfer$types$en.internal(this._root);
+
+  final Translations _root; // ignore: unused_field
+
+  // Translations
+
+  /// en: 'Image'
+  String get image => 'Image';
+
+  /// en: 'Video'
+  String get video => 'Video';
+
+  /// en: 'PDF'
+  String get pdf => 'PDF';
+
+  /// en: 'Text'
+  String get text => 'Text';
+
+  /// en: 'App'
+  String get apk => 'App';
+
+  /// en: 'File'
+  String get other => 'File';
+
+  /// en: 'Multiple types'
+  String get multiple => 'Multiple types';
 }
 
 // Path: settingsTab.appearance

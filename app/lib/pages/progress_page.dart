@@ -58,7 +58,8 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
   Set<String> _selectedFiles = {};
   SessionStatus? _lastStatus;
 
-  // If [autoFinish] is enabled, we wait a few seconds before automatically closing the session.
+  // Successful foreground sends always return to the send tab after a short delay.
+  // Receive sessions continue to respect the [autoFinish] setting.
   int _finishCounter = 3;
   Timer? _finishTimer;
   Timer? _wakelockPlusTimer;
@@ -96,7 +97,12 @@ class _ProgressPageState extends State<ProgressPage> with Refena {
         });
       }
 
-      if (ref.read(settingsProvider).autoFinish) {
+      final isSendSession = ref.read(sendProvider).containsKey(widget.sessionId);
+      if (isSendSession) {
+        _finishCounter = 5;
+      }
+
+      if (isSendSession || ref.read(settingsProvider).autoFinish) {
         _finishTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
           // an empty iterable (session already removed) also counts as finished
           final finished = ref.read(fileTransferProvider).getStatuses(widget.sessionId).isFinishedOrSkipped;

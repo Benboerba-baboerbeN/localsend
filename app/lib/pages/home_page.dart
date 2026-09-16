@@ -8,6 +8,7 @@ import 'package:localsend_app/pages/home_page_controller.dart';
 import 'package:localsend_app/pages/tabs/receive_tab.dart';
 import 'package:localsend_app/pages/tabs/send_tab.dart';
 import 'package:localsend_app/pages/tabs/settings_tab.dart';
+import 'package:localsend_app/provider/last_transfer_provider.dart';
 import 'package:localsend_app/provider/selection/selected_sending_files_provider.dart';
 import 'package:localsend_app/provider/skin_provider.dart';
 import 'package:localsend_app/util/native/cross_file_converters.dart';
@@ -72,6 +73,8 @@ class _HomePageState extends State<HomePage> with Refena {
     Translations.of(context); // rebuild on locale change
     final vm = context.watch(homePageControllerProvider);
     final wallpaperPath = context.watch(skinProvider.select((state) => state.wallpaperPath));
+    final lastTransfer = context.watch(lastTransferProvider);
+    final bottomOverlayHeight = lastTransfer == null ? 94.0 : 132.0;
 
     return SkinBackground(
       wallpaperPath: wallpaperPath,
@@ -117,13 +120,19 @@ class _HomePageState extends State<HomePage> with Refena {
                   child: PageView(
                     controller: vm.controller,
                     physics: const NeverScrollableScrollPhysics(),
-                    children: const [
+                    children: [
                       Padding(
-                        padding: EdgeInsets.only(bottom: 94),
-                        child: ReceiveTab(),
+                        padding: EdgeInsets.only(bottom: bottomOverlayHeight),
+                        child: const ReceiveTab(),
                       ),
-                      SendTab(),
-                      SettingsTab(),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: bottomOverlayHeight),
+                        child: const SendTab(),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: bottomOverlayHeight),
+                        child: const SettingsTab(),
+                      ),
                     ],
                   ),
                 ),
@@ -133,12 +142,21 @@ class _HomePageState extends State<HomePage> with Refena {
                 child: SafeArea(
                   top: false,
                   minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                  child: FloatingNavigationBar(
-                    selectedIndex: vm.currentTab.index,
-                    onDestinationSelected: (index) => vm.changeTab(HomeTab.values[index]),
-                    destinations: HomeTab.values.map((tab) {
-                      return NavigationDestination(icon: Icon(tab.icon), label: tab.label);
-                    }).toList(),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (lastTransfer != null) ...[
+                        LastTransferStatusBar(record: lastTransfer),
+                        const SizedBox(height: 6),
+                      ],
+                      FloatingNavigationBar(
+                        selectedIndex: vm.currentTab.index,
+                        onDestinationSelected: (index) => vm.changeTab(HomeTab.values[index]),
+                        destinations: HomeTab.values.map((tab) {
+                          return NavigationDestination(icon: Icon(tab.icon), label: tab.label);
+                        }).toList(),
+                      ),
+                    ],
                   ),
                 ),
               ),
